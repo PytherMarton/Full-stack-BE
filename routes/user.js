@@ -1,6 +1,27 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const passport = require("passport");
+
+const session = {session: false};
+
+//======================= register user =======================
+
+// takes the authenticate req and returns a response
+const register = async (req, res, next) => {
+  try {
+    req.user.name
+      ? res.status(201).json({ msg: "User registered", user: req.user})
+      : res.status(401).json({ msg: "User already exists" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// register router - authenticate using registerStrategy( names 'register') and passes on the register function defined above.
+router.post("/registeruser", passport.authenticate("register", session), register);
+
+//======================== routes =========================
 
 // get all users
 router.get("/", async (req, res) => {
@@ -8,14 +29,6 @@ router.get("/", async (req, res) => {
     attributes: ["id", "name", "createdAt", "updatedAt"],
   });
   res.status(200).json({ msg: "worked", data: allUsers });
-});
-
-// create a user
-router.post("/", async (req, res) => {
-  const salt = await bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS));
-  const password = await bcrypt.hash(req.body.password, salt);
-  await User.create({ name: req.body.name, password });
-  res.status(201).json({ msg: "worked" });
 });
 
 // delete all users
