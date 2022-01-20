@@ -2,8 +2,17 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
-const session = {session: false};
+const session = { session: false };
+
+//======================= / ============================
+
+const profile = (req, res, next) => {
+  res.status(200).json({message: "profile", user: req.user, token: req.query.secret_token});
+};
+
+router.get("/", passport.authenticate("jwt", session), profile);
 
 //======================= register user =======================
 
@@ -11,7 +20,7 @@ const session = {session: false};
 const register = async (req, res, next) => {
   try {
     req.user.name
-      ? res.status(201).json({ msg: "User registered", user: req.user})
+      ? res.status(201).json({ msg: "User registered", user: req.user })
       : res.status(401).json({ msg: "User already exists" });
   } catch (error) {
     next(error);
@@ -19,12 +28,45 @@ const register = async (req, res, next) => {
 };
 
 // register router - authenticate using registerStrategy( names 'register') and passes on the register function defined above.
-router.post("/registeruser", passport.authenticate("register", session), register);
+router.post(
+  "/registeruser",
+  passport.authenticate("register", session),
+  register
+);
 
-//======================== routes =========================
+//======================== login =========================
+
+const login = async (req, res, next) => {
+  passport.authenticate("login", (error, user) => {
+      try {
+          if (error) {
+              console.log(error);
+              res.status(500).json({message: "Internal Server Error"});
+          } else if (!user) {
+              res.status(401).json({msg: "401 not found."});
+          } else {
+              const loginFn = (error) => {
+                  if(error) {
+                      return next(error);
+                  } else {
+                      const userData = {id: user.id, name: user.name};
+                      const data = {user, token: jwt.sign({user: userData}, process.env.SECRET_KEY)};
+                      res.status(200).json(data);
+                  }
+              };
+
+              req.login(user, session, loginFn);
+          }
+      } catch (error) {
+          return next(error);
+      }
+  })(req, res, next); //IFFY - Immediately Invoked Function Expression
+};
+
+router.post("/userLogin", login);
 
 // get all users
-router.get("/", async (req, res) => {
+router.get("/getallusers", async (req, res) => {
   const allUsers = await User.findAll({
     attributes: ["id", "name", "createdAt", "updatedAt"],
   });

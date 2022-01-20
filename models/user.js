@@ -1,5 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const connection = require("../connection");
+const bcrypt = require("bcrypt");
+const hash = require("../hash");
 
 const User = connection.define(
   "User",
@@ -9,7 +11,7 @@ const User = connection.define(
       allowNull: false,
     },
 
-    password: {
+    passwordHash: {
       type: DataTypes.STRING,
       allowNull: false,
     },
