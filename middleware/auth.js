@@ -33,13 +33,11 @@ const register = async (name, password, next) => {
 const login = async (name, password, next) => {
   try {
     const user = await User.findOne({where: {name: name}});
-    console.log(user)
     if (!user) {
       return next(null, null, { message: "Incorrect name" });
     }
 
     const match = await bcrypt.compare(password, user.passwordHash);
-    console.log(user)
     return match ? next(null, user) : next(null, null, { message: "Incorrect password" });
   } catch (error) {
     next(error);
