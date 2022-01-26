@@ -63,7 +63,7 @@ const login = async (req, res, next) => {
   })(req, res, next); //IFFY - Immediately Invoked Function Expression
 };
 
-router.post("/userLogin", login);
+router.post("/login", login);
 
 // get all users
 router.get("/getallusers", async (req, res) => {
