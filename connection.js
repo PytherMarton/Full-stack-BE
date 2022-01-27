@@ -20,4 +20,4 @@ if (process.env.NODE_ENV === "PRODUCTION") {
     console.log("DB connection successful");
 }
 
-module.exports = connection;
+module.exports.default = connection;
