@@ -31,4 +31,4 @@
 //   Cards.sync({ alter: true });
 //   console.log("App is online");
 // });
-<p>hello</p>
+console.log("hello")
