@@ -12,7 +12,7 @@ const profile = (req, res, next) => {
   res.status(200).json({message: "profile", user: req.user, token: req.query.secret_token});
 };
 
-router.get("/", passport.authenticate("jwt", session), profile);
+router.get("*", passport.authenticate("jwt", session), profile);
 
 //======================= register user =======================
 
